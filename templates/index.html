@@ -133,7 +133,10 @@
 				console.log("API returned !ok");
 				return;
 			}
-			console.log("OK");
+
+			const json = await response.json();
+			console.log(json);
+
 		});
 	</script>
 </html>

@@ -1,9 +1,12 @@
-import sys
-from json import dumps, loads
-from typing import final
+import json
 from flask import Flask, render_template, request
+from util import parse_env
 from api import Api
 
+MAX_CONTENT_LENGTH = 1024 * 1024
+
+env = parse_env()
+api = Api(env['CF_API_KEY'])
 app = Flask(__name__)
 
 @app.route('/')
@@ -12,7 +15,7 @@ def home():
 
 @app.route('/api', methods=['POST'])
 def api_handler():
-    if request.content_length and request.content_length > 1024 * 1024:
+    if request.content_length and request.content_length > MAX_CONTENT_LENGTH:
         return 'Request entity too large', 413
 
     try:
@@ -32,9 +35,26 @@ def api_handler():
         except (ValueError, TypeError):
             return 'Data contains invalid ID', 400
 
-    print(ids)
 
-    return '', 200
+    print('Loading...')
+
+    results = {}
+    for mod_id in ids:
+        mc_versions, _ = api.get_mod_versions_and_loaders(mod_id)
+        mc_name = api.get_mod_name(mod_id)
+
+        if not mc_name or not mc_versions:
+            continue  # Optionally: skip or handle missing data
+
+        results[str(mod_id)] = {
+            "name": mc_name,
+            "versions": mc_versions
+        }
+
+    if not results:
+        return "No valid mod data found", 500
+
+    return json.dumps(results), 200
 
 if __name__ == '__main__':
     app.run(debug=True)

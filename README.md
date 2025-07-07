@@ -41,8 +41,8 @@ Simply input a list of mod IDs, and the tool fetches their supported versions vi
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/your-username/cf-minecraft-mod-compat.git
-cd cf-minecraft-mod-compat
+git clone https://github.com/ac-jurd/CFModCompat.git
+cd CFModCompat
 ```
 
 ### 2. Create a virtual environment and install dependencies
@@ -115,8 +115,6 @@ Then open your browser to `http://localhost:5000`.
 │   └── favicon.ico       # Favicon
 ├── .env                  # Contains your CurseForge API key
 └── requirements.txt      # Python dependencies
-
-
 ```
 
 ### 🔒 Notes on Usage
@@ -132,5 +130,3 @@ Then open your browser to `http://localhost:5000`.
 - [CurseForge API](https://docs.curseforge.com/)
 
 - [Bootstrap 5](https://getbootstrap.com/)
-
-

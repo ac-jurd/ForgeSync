@@ -1,13 +1,12 @@
-import json
-from flask import Flask, render_template, request
-from util import parse_env
+from flask import Flask, render_template, request, jsonify
+from util import parse_env, find_best_minecraft_version_and_incompatibles
 from api import Api
 
 MAX_CONTENT_LENGTH = 1024 * 1024
 
 env = parse_env()
 api = Api(env['CF_API_KEY'])
-app = Flask(__name__)
+app = Flask(__name__, static_url_path='/static')
 
 @app.route('/')
 def home():
@@ -24,8 +23,8 @@ def api_handler():
         print('JSON parsing error:', e)
         return 'Invalid JSON', 400
 
-    if not isinstance(data, list):
-        return 'Expected list of IDs', 400
+    if not isinstance(data, list) or len(data) == 0:
+        return 'Expected non-empty list of IDs', 400
 
     ids = []
     for d in data:
@@ -35,7 +34,6 @@ def api_handler():
         except (ValueError, TypeError):
             return 'Data contains invalid ID', 400
 
-
     print('Loading...')
 
     results = {}
@@ -44,7 +42,8 @@ def api_handler():
         mc_name = api.get_mod_name(mod_id)
 
         if not mc_name or not mc_versions:
-            continue  # Optionally: skip or handle missing data
+            # Skip invalid mod data but keep going
+            continue
 
         results[str(mod_id)] = {
             "name": mc_name,
@@ -54,7 +53,16 @@ def api_handler():
     if not results:
         return "No valid mod data found", 500
 
-    return json.dumps(results), 200
+    best_version, compatible_mod_count, incompatible_mod_names = find_best_minecraft_version_and_incompatibles(results)
+
+    response = {
+        "mods": results,
+        "recommended_version": best_version,
+        "compatible_mod_count": compatible_mod_count,
+        "incompatible_mods": incompatible_mod_names
+    }
+
+    return jsonify(response), 200
 
 if __name__ == '__main__':
     app.run(debug=True)

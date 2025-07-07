@@ -13,56 +13,9 @@
       crossorigin="anonymous"
     ></script>
 
-    <style>
-      body {
-        background-color: #f8f9fa;
-      }
-
-	  #page-container {
-		  display: flex;
-		  justify-content: center;
-		  padding-top: 5vh;
-		  padding-left: 1rem;
-		  padding-right: 1rem;
-		  max-width: 100%;
-		}
-
-      #tool-card {
-        background-color: white;
-        border-radius: 12px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        padding: 2rem;
-        max-width: 600px;
-        width: 100%;
-      }
-
-      #control-ids {
-        resize: vertical;
-        min-height: 160px;
-      }
-
-      #control-help {
-        padding-left: 0;
-        font-size: 0.9rem;
-        color: #0d6efd;
-        border: none;
-        background: none;
-        text-align: left;
-      }
-
-      #control-help:hover {
-        text-decoration: underline;
-      }
-
-	  #control-invalid {
-		display: none;
-		color: red;
-	  }
-
-      #control-submit {
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
-      }
-    </style>
+	<link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
+	<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+	<script defer src="{{ url_for('static', filename='main.js') }}"></script>
   </head>
 
   <body>
@@ -70,7 +23,7 @@
       <div id="tool-card">
         <h1 class="h3 fw-bold text-center mb-3">CF Minecraft Mod Compat</h1>
         <p class="text-center text-muted mb-4">
-          Find the game version that best matches compatibility with a list of mods.
+          Find the game version that best matches compatibility with a list of CurseForge mods.
         </p>
 
         <div class="mb-3">
@@ -84,60 +37,37 @@
           <button id="control-submit" class="btn btn-primary">Submit</button>
         </div>
       </div>
+
+	  <div id="results-card" style="display: none;">
+		  <h2>Results</h2>
+		  <div id="results-container">
+			<!-- JS will populate this -->
+		  </div>
+
+		  <h2 id="recommended-title">Given mod compatibility, it is recommended to use Minecraft version</h2>
+		  <h3 id="recommended-version"></h3>
+
+		  <div id="incompatible-section" style="display: none;">
+			<h2>Incompatible Mods</h2>
+			<ul id="incompatible-list"></ul>
+		  </div>
+		</div>
     </div>
+
+	<div id="image-overlay">
+	  <div id="image-overlay-bg"></div>
+	  <img id="image-overlay-img" src="{{ url_for('static', filename='mod_id_help.png') }}" alt="Where to find mod IDs">
+	</div>
+
+	<div id="preloader">
+	  <div class="preloader-content">
+		<div class="spinner-border text-primary" role="status">
+		  <span class="visually-hidden">Loading...</span>
+		</div>
+		<p class="preloader-text mt-3">Please wait. This may take a while for long lists of mods.</p>
+	  </div>
+	</div>
+
   </body>
-
-	<script>
-		const controlHelp = document.getElementById("control-help");
-		const controlIds = document.getElementById("control-ids");
-		const controlInvalid = document.getElementById("control-invalid");
-		const controlSubmit = document.getElementById("control-submit");
-
-		controlSubmit.addEventListener("click", async (e) => {
-			const normalized = controlIds.value.replace(/\r\n/g, "\n");
-			const dataIdsList = normalized
-				.split("\n")
-				.map(id => id.trim())           // Remove surrounding whitespace
-				.filter(id => id.length > 0);   // Remove empty lines
-
-			if (dataIdsList.length == 0) {
-				return;
-			}
-
-			// Check if any ID is invalid (contains non-digit characters)
-			const hasInvalid = dataIdsList.some(id => /[^0-9]/.test(id));
-
-			if (hasInvalid) {
-				console.error("One or more IDs are invalid (contain non-digit characters).");
-				controlIds.style.borderColor = "red";
-				controlInvalid.style.display = "block";
-				return;
-			}
-
-			// Reset error signs
-			controlIds.style.borderColor = "initial";
-			controlInvalid.style.display = "none";
-
-			const uniqueIds = [...new Set(dataIdsList)];
-			const jsonIds = JSON.stringify(uniqueIds);
-
-			const response = await fetch("/api", {
-				method: "POST",
-				body: jsonIds,
-				headers: {
-					"Content-Type": "application/json"
-				}
-			});
-
-			if (!response.ok) {
-				console.log("API returned !ok");
-				return;
-			}
-
-			const json = await response.json();
-			console.log(json);
-
-		});
-	</script>
 </html>
 

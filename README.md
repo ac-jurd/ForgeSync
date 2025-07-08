@@ -1,6 +1,6 @@
-# 🧱 CF Minecraft Mod Compat
+# 🧱 ForgeSync
 
-**CF Minecraft Mod Compat** is a lightweight web tool built with Flask that helps Minecraft modpack creators determine the most compatible Minecraft version for a list of mods from [CurseForge](https://www.curseforge.com/minecraft/mc-mods). 
+**ForgeSync** is a lightweight web tool built with Flask that helps Minecraft modpack creators determine the most compatible Minecraft version for a list of mods from [CurseForge](https://www.curseforge.com/minecraft/mc-mods). 
 
 Simply input a list of mod IDs, and the tool fetches their supported versions via the CurseForge API, analyzes the data, and recommends the version with the highest compatibility.
 
@@ -41,8 +41,8 @@ Simply input a list of mod IDs, and the tool fetches their supported versions vi
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/ac-jurd/CFModCompat.git
-cd CFModCompat
+git clone https://github.com/ac-jurd/ForgeSync.git
+cd ForgeSync
 ```
 
 ### 2. Create a virtual environment and install dependencies

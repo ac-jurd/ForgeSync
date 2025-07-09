@@ -1,4 +1,7 @@
 from flask import Flask, render_template, request, jsonify
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+from werkzeug.middleware.proxy_fix import ProxyFix
 from util import parse_env, find_best_minecraft_version_and_incompatibles
 from api import Api
 
@@ -7,12 +10,21 @@ MAX_CONTENT_LENGTH = 1024 * 1024
 env = parse_env()
 api = Api(env['CF_API_KEY'])
 app = Flask(__name__, static_url_path='/static')
+app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1)
+
+limiter = Limiter(
+    get_remote_address,
+    app=app,
+    default_limits=['100 per day']
+)
 
 @app.route('/')
+@limiter.exempt
 def home():
     return render_template('index.html')
 
 @app.route('/api', methods=['POST'])
+@limiter.limit('30/minute')
 def api_handler():
     if request.content_length and request.content_length > MAX_CONTENT_LENGTH:
         return 'Request entity too large', 413

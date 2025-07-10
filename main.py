@@ -10,7 +10,7 @@ MAX_CONTENT_LENGTH = 1024 * 1024
 env = parse_env()
 api = Api(env['CF_API_KEY'])
 app = Flask(__name__, static_url_path='/static')
-app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1)
+app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1)
 
 limiter = Limiter(
     get_remote_address,
